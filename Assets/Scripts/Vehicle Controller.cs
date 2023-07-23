@@ -9,8 +9,6 @@ public class VehicleController : MonoBehaviour
     private List<Wheel> _wheelsList;
     [SerializeField]
     private Rigidbody _rb;
-    [SerializeField]
-    private Transform _transform;
 
     [Header("Engine Power")]
     [SerializeField]
@@ -23,25 +21,12 @@ public class VehicleController : MonoBehaviour
     private List<Wheel> _steerableWheels = new List<Wheel>();
     private List<Wheel> _driveWheels = new List<Wheel>();
 
-    private float _forwardBackInput;
-
     private void Awake()
     {
         if (_rb == null) _rb = GetComponent<Rigidbody>();
-        if (_rb == null) _transform = GetComponent<Transform>();
         foreach(Wheel wheel in _wheelsList){
             wheel.Setup(_rb);
             UpdateWheel(wheel);
-        }
-    }
-    
-    private void Update()
-    {
-        if (Input.GetKey(KeyCode.W)){
-            _forwardBackInput = Input.GetAxis("Vertical");
-        }
-        if (Input.GetKey(KeyCode.S)){
-            _forwardBackInput = Input.GetAxis("Vertical");
         }
     }
 
@@ -52,13 +37,20 @@ public class VehicleController : MonoBehaviour
 
     private void HandleInputForMovement()
     {
-        if (_forwardBackInput != 0.0f)
+        float xMovement = Input.GetAxis("Horizontal");   
+        float zMovement = Input.GetAxis("Vertical");
+        if (zMovement != 0.0f)
         {
-            Acceleration();
+            Acceleration(zMovement);
+        }
+        if (xMovement != 0.0f){
+            foreach (Wheel wheel in _steerableWheels){
+                wheel.SetLeftRightInput(xMovement);
+            }
         }
     }
 
-    private void Acceleration()
+    private void Acceleration(float zMovement)
     {
         Vector3 accelerationDirection = transform.forward;
         // Return the magnitude of the dot product between the cars forward direction and the 
@@ -69,7 +61,7 @@ public class VehicleController : MonoBehaviour
         float normSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / _topSpeed);
 
         // Torque
-        float torquePercentage = _powerCurve.Evaluate(normSpeed) * _forwardBackInput;
+        float torquePercentage = _powerCurve.Evaluate(normSpeed) * zMovement;
 
         foreach (Wheel wheel in _driveWheels)
         {
