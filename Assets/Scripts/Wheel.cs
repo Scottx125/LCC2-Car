@@ -34,6 +34,8 @@ public class Wheel : MonoBehaviour
     private float _turnRate;
     [SerializeField]
     private float _maxTurnAngle;
+    [SerializeField]
+    private float _wheelHeightOffset;
 
     private Rigidbody _parentRB;
     private Transform _parentTransform;
@@ -59,15 +61,17 @@ public class Wheel : MonoBehaviour
         // We'll check this before doing any calculations.
         _wheelRaycastBool = Physics.Raycast(transform.position, worldDown, out _wheelRayHit, _suspensionLength);
         CalculateSuspension();
+        CalculateMeshPosition();
         TurnWheel();
         CalculateSliding();
     }
 
-    private void CalculateMeshPosition(float suspensionOffset)
+    private void CalculateMeshPosition()
     {
         if (_tyreObject == null) return;
+        float suspensionOffset = (_suspensionLength - _wheelRayHit.distance);
         _tyreObject.transform.position = new Vector3(transform.position.x, 
-        Mathf.Clamp(transform.position.y - (_suspensionLength - _wheelRayHit.distance) - _tyreRadius, _suspensionLength - _tyreRadius, transform.position.y - _minVisualSuspension)
+        Mathf.Clamp(transform.position.y - _suspensionLength + (suspensionOffset +  _tyreRadius), transform.position.y - _suspensionLength - _tyreRadius, transform.position.y - _wheelHeightOffset)
         , transform.position.z);
     }
 
@@ -83,6 +87,7 @@ public class Wheel : MonoBehaviour
 
     private void CalculateSuspension()
     {
+        if (_parentRB == null) return;
         if (_wheelRaycastBool)
         {
             // World space direction of the suspension force (we are applying
@@ -93,8 +98,7 @@ public class Wheel : MonoBehaviour
             Vector3 tireWorldVel = _parentRB.GetPointVelocity(transform.position);
 
             // Offset from the resting distance of the suspension based on the distance from the ground.
-            float suspensionOffset = _suspensionLength - _wheelRayHit.distance;
-            CalculateMeshPosition(suspensionOffset);
+            float suspensionOffset = (_suspensionLength - _wheelRayHit.distance);
             // Velocity along the suspension direction.
             // Get the dot product (magnitude) of the upwards direction the suspension wants to move in
             // against the current velocity at the suspension point.
@@ -110,6 +114,7 @@ public class Wheel : MonoBehaviour
 
     private void CalculateSliding()
     {
+        if (_parentRB == null) return;
         if (_wheelRaycastBool){
             // World space direction of sliding force if grip is lost.
             Vector3 slipDir = transform.right;

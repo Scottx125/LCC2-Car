@@ -23,6 +23,7 @@ public class VehicleController : MonoBehaviour
 
     private void Awake()
     {
+        Cursor.lockState = CursorLockMode.Confined;
         if (_rb == null) _rb = GetComponent<Rigidbody>();
         foreach(Wheel wheel in _wheelsList){
             wheel.Setup(_rb);
