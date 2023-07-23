@@ -7,6 +7,8 @@ public class VehicleController : MonoBehaviour
     // List of the wheels.
     [SerializeField]
     private List<Wheel> _wheelsList;
+    [SerializeField]
+    private Rigidbody _rb;
 
     // List of wheels currently configured to allow steering
     // or power.
@@ -15,8 +17,9 @@ public class VehicleController : MonoBehaviour
 
     private void Awake()
     {
+        if (_rb == null) _rb = GetComponent<Rigidbody>();
         foreach(Wheel wheel in _wheelsList){
-            wheel.Setup();
+            wheel.Setup(_rb);
             UpdateWheel(wheel);
         }
     }
