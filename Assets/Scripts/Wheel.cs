@@ -5,10 +5,8 @@ using UnityEngine;
 
 public class Wheel : MonoBehaviour
 {
-    protected bool turnLeft;
-    protected bool turnRight;
-    protected bool forward;
-    protected bool backward;
+    protected float turnLeft;
+    protected float turnRight;
 
     [Header("Car Control")]
     [SerializeField]
@@ -25,6 +23,7 @@ public class Wheel : MonoBehaviour
     private float _suspensionDamperStrength;
 
     private Rigidbody _parentRB;
+    private Transform _parentTransform;
     private RaycastHit _wheelRayHit;
     private bool _wheelRaycastBool;
 
@@ -72,4 +71,5 @@ public class Wheel : MonoBehaviour
             _parentRB.AddForceAtPosition(suspensionDir * force, transform.position);
         }
     }
+
 }
